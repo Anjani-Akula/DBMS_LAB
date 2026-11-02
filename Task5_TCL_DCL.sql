@@ -1,0 +1,71 @@
+use playstoredb;
+select * from apps;
+start transaction;
+update apps set rating = 4.8 where AppID=1002;
+commit;
+update apps set price=2000.00 where AppID=1006;
+rollback;
+insert into apps values(1014,'Dora',102,202,306,4.4,500000000,0.00);
+commit;
+select * from developers;
+insert into developers values(107,'Perplexity','UK',2021);
+rollback;
+
+start transaction;
+update apps set rating=4.3 where Appid=1004;
+savepoint spl;
+update apps set rating=4.4 where appid=1004;
+rollback to savepoint spl;
+commit;
+
+-- Level 1
+start transaction;
+update apps set rating = 4.8 where appid=1007;
+savepoint spl2;
+update apps set rating=4.7 where appid=1004;
+update apps set rating=2.8 where appid=1001;
+rollback to savepoint spl2;
+-- select * from apps;
+insert into apps values ( 1015,'Gem',102,201,302,4.2,10000000,120.00);
+savepoint spl3;
+update apps set price=450.00 where appid=1015;
+rollback to savepoint spl3;
+select * from apps;
+create user 'student'@'localhost' identified by 'student@123';
+GRANT SELECT on apps to 'student'@'localhost';
+grant SELECT,INSERT ON apps to 'student'@'localhost';
+revoke insert on apps from 'student'@'localhost';
+
+-- LEVEL 2
+start transaction;
+update apps set price=220.00 where appid=1002;
+update apps set categoryid=302 where appid=1009;
+savepoint spl4;
+select * from apps;
+update apps set price=0.00 where appid=1002;
+update apps set categoryid=301 where appid=1009;
+rollback to savepoint spl4;
+select * from apps;
+
+select * from categories;
+start transaction;
+savepoint sp1; 
+insert into categories values(307,'PoeticaAI',10);
+insert into categories values(308,'Zoom',11);
+rollback to savepoint sp1;
+select * from categories;
+create user 'student1'@'localhost' identified by 'student!123';
+grant select,update,insert on apps to 'student1'@'localhost';
+revoke update on apps from 'student1'@'localhost';
+grant select  on developers to 'student1'@'localhost';
+revoke select on developers from 'student1'@'localhost';
+start transaction;
+select * from publishers;
+insert into publishers values(205,'FlipKart','Mumbai','support@flipkart.com');
+savepoint sp2;
+update publishers set SupportEmail='support@googleplay.com' where publisherid=201;
+rollback to savepoint sp2;
+update publishers set SupportEmail='support@samsung.com' where publisherid=202;
+commit;
+rollback to savepoint sp2;
+select * from publishers where publisherid=202;
